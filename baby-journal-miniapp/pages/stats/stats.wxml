@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">统计</view>
+    <view class="muted">先做最实用的基础统计，后面可以再加图表。</view>
+  </view>
+
+  <view class="card">
+    <view class="row" style="margin-bottom: 20rpx;">
+      <view>
+        <view class="muted">总记录</view>
+        <view style="font-size: 40rpx; font-weight: 700;">{{stats.total}}</view>
+      </view>
+      <view>
+        <view class="muted">今天</view>
+        <view style="font-size: 40rpx; font-weight: 700;">{{stats.today}}</view>
+      </view>
+    </view>
+    <block wx:for="{{summary}}" wx:key="label">
+      <view class="row" style="justify-content: space-between; margin-bottom: 12rpx;">
+        <view>{{item.label}}</view>
+        <view>{{item.count}}</view>
+      </view>
+    </block>
+  </view>
+</view>

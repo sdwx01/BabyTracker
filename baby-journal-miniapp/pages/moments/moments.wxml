@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">第一次和特别瞬间</view>
+    <view class="muted">比如第一次翻身、第一次笑出声、第一次外出。</view>
+  </view>
+
+  <block wx:if="{{records.length}}">
+    <block wx:for="{{records}}" wx:key="id">
+      <view class="card">
+        <view style="font-weight: 600;">{{item.displayTime}}</view>
+        <view style="margin-top: 12rpx;">{{item.note || '特别瞬间'}}</view>
+      </view>
+    </block>
+  </block>
+
+  <view wx:else class="card empty">还没有记录特别瞬间，等你们一起创造第一个 🥹</view>
+</view>

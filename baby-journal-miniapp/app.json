@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/timeline/timeline",
+    "pages/moments/moments",
+    "pages/stats/stats"
+  ],
+  "window": {
+    "navigationBarTitleText": "宝宝日常记录",
+    "navigationBarBackgroundColor": "#FFF7F3",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F8FAFC",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#7C8594",
+    "selectedColor": "#FF7A59",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "记录"
+      },
+      {
+        "pagePath": "pages/timeline/timeline",
+        "text": "时间线"
+      },
+      {
+        "pagePath": "pages/moments/moments",
+        "text": "第一次"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "统计"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
