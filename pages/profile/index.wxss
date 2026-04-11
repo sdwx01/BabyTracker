@@ -1,0 +1,161 @@
+.profile-hero,
+.section-card {
+  padding: 28rpx;
+}
+
+.avatar-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f3c89f 0%, #de8158 100%);
+  color: #fff;
+  font-size: 44rpx;
+  font-weight: 700;
+}
+
+.profile-name {
+  margin-top: 18rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+}
+
+.profile-meta {
+  margin-top: 12rpx;
+  font-size: 25rpx;
+  color: #8f7968;
+}
+
+.edit-button {
+  margin-top: 20rpx;
+}
+
+.section-card {
+  margin-top: 22rpx;
+}
+
+.sync-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 22rpx;
+  padding: 18rpx 0;
+}
+
+.sync-label {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.sync-meta {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8d7866;
+  line-height: 1.5;
+}
+
+.sync-hint {
+  padding: 18rpx 20rpx;
+  border-radius: 20rpx;
+  background: #fff6ed;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #7b6555;
+}
+
+.sync-error {
+  margin-top: 18rpx;
+  padding: 16rpx 18rpx;
+  border-radius: 18rpx;
+  background: #fff0eb;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #b55d43;
+}
+
+.sync-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 18rpx;
+}
+
+.sync-button {
+  width: 32%;
+  font-size: 24rpx;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.caregiver-list {
+  margin-top: 20rpx;
+}
+
+.caregiver-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0e3d5;
+}
+
+.caregiver-item:last-child {
+  border-bottom: none;
+}
+
+.caregiver-name {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.caregiver-role {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8d7866;
+}
+
+.owner-pill {
+  background: #f0ddc7;
+  color: #8f583c;
+}
+
+.invite-box {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border-radius: 22rpx;
+  background: #fff6ed;
+}
+
+.invite-label {
+  font-size: 22rpx;
+  color: #947f6c;
+}
+
+.invite-code {
+  margin-top: 10rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.family-button {
+  margin-top: 18rpx;
+}
+
+.guideline-list {
+  margin-top: 16rpx;
+}
+
+.guideline-item {
+  padding: 16rpx 0;
+  font-size: 26rpx;
+  color: #564438;
+  border-bottom: 1rpx solid #f0e3d5;
+}
+
+.guideline-item:last-child {
+  border-bottom: none;
+}

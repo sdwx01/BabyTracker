@@ -1,0 +1,160 @@
+<view class="page-shell">
+  <view class="hero-card hero">
+    <view class="pill">两步记录</view>
+    <view class="hero-title">{{heroTitle}}</view>
+    <view class="hero-subtitle">{{heroSubtitle}}</view>
+  </view>
+
+  <view class="surface-card summary-card">
+    <view class="section-row">
+      <view>
+        <view class="section-title">今日概览</view>
+        <view class="section-subtitle">把高频信息压缩到一眼能看懂</view>
+      </view>
+    </view>
+    <view class="summary-grid">
+      <view class="summary-item" wx:for="{{dashboardCards}}" wx:key="label">
+        <view class="summary-label">{{item.label}}</view>
+        <view class="summary-value">{{item.value}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-row plain-row">
+    <view>
+      <view class="section-title">快捷记录</view>
+      <view class="section-subtitle">单手操作，大按钮优先</view>
+    </view>
+  </view>
+  <view class="action-grid">
+    <view class="action-card" wx:for="{{quickActions}}" wx:key="type" bindtap="openComposer" data-type="{{item.type}}">
+      <view class="action-title">{{item.title}}</view>
+      <view class="action-subtitle">{{item.subtitle}}</view>
+    </view>
+  </view>
+
+  <view class="section-row plain-row">
+    <view>
+      <view class="section-title">今天时间轴</view>
+      <view class="section-subtitle">记录完成后立刻出现在这里</view>
+    </view>
+  </view>
+
+  <view wx:if="{{hasTimeline}}">
+    <view class="timeline-card timeline-item" wx:for="{{timeline}}" wx:key="id">
+      <view class="timeline-time">{{item.time}}</view>
+      <view class="timeline-main">
+        <view class="timeline-title-row">
+          <view class="timeline-title">{{item.title}}</view>
+          <view class="timeline-actions">
+            <text class="timeline-link" bindtap="openEditComposer" data-id="{{item.id}}">编辑</text>
+            <text class="timeline-link" bindtap="onDuplicateRecord" data-id="{{item.id}}">复制</text>
+            <text class="timeline-link danger" bindtap="onDeleteRecord" data-id="{{item.id}}">删除</text>
+          </view>
+        </view>
+        <view class="timeline-description">{{item.description}}</view>
+        <view wx:if="{{item.hasNote}}" class="timeline-note">{{item.note}}</view>
+      </view>
+    </view>
+  </view>
+  <view wx:else class="surface-card empty-state">
+    今天还没有记录，先点上面的快捷按钮。
+  </view>
+</view>
+
+<view wx:if="{{showComposer}}">
+  <view class="sheet-mask" bindtap="closeComposer"></view>
+  <view class="sheet-panel">
+    <view class="sheet-header">
+      <view>
+        <view class="section-title">{{composerTitle}}</view>
+        <view class="section-subtitle">{{composerSubtitle}}</view>
+      </view>
+      <text class="sheet-close" bindtap="closeComposer">关闭</text>
+    </view>
+
+    <view class="field-row">
+      <view class="field-half">
+        <view class="field-label">日期</view>
+        <picker mode="date" value="{{dateValue}}" bindchange="onDateChange">
+          <view class="field-picker">{{dateValue}}</view>
+        </picker>
+      </view>
+      <view class="field-half">
+        <view class="field-label">时间</view>
+        <picker mode="time" value="{{timeValue}}" bindchange="onTimeChange">
+          <view class="field-picker">{{timeValue}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <block wx:if="{{isFeedComposer}}">
+      <view class="field-label">方式</view>
+      <picker mode="selector" range="{{modeOptions}}" value="{{modeIndex}}" bindchange="onPickerChange" data-field="modeIndex">
+        <view class="field-picker">{{modeOptions[modeIndex]}}</view>
+      </picker>
+      <view class="field-row">
+        <view class="field-half">
+          <view class="field-label">奶量 ml</view>
+          <input class="field-input" type="number" placeholder="如 120" value="{{amountValue}}" bindinput="onInputChange" data-field="amountValue" />
+        </view>
+        <view class="field-half">
+          <view class="field-label">时长 分钟</view>
+          <input class="field-input" type="number" placeholder="如 18" value="{{durationValue}}" bindinput="onInputChange" data-field="durationValue" />
+        </view>
+      </view>
+      <view wx:if="{{showSideField}}">
+        <view class="field-label">母乳侧别</view>
+        <picker mode="selector" range="{{sideOptions}}" value="{{sideIndex}}" bindchange="onPickerChange" data-field="sideIndex">
+          <view class="field-picker">{{sideOptions[sideIndex]}}</view>
+        </picker>
+      </view>
+    </block>
+
+    <block wx:if="{{isDiaperComposer}}">
+      <view class="field-label">记录类型</view>
+      <picker mode="selector" range="{{diaperKindOptions}}" value="{{diaperKindIndex}}" bindchange="onPickerChange" data-field="diaperKindIndex">
+        <view class="field-picker">{{diaperKindOptions[diaperKindIndex]}}</view>
+      </picker>
+      <view class="field-label">状态</view>
+      <picker mode="selector" range="{{diaperStatusOptions}}" value="{{diaperStatusIndex}}" bindchange="onPickerChange" data-field="diaperStatusIndex">
+        <view class="field-picker">{{diaperStatusOptions[diaperStatusIndex]}}</view>
+      </picker>
+    </block>
+
+    <block wx:if="{{isSleepComposer}}">
+      <view class="field-label">睡眠时长</view>
+      <input class="field-input" type="number" placeholder="分钟数，如 95" value="{{durationValue}}" bindinput="onInputChange" data-field="durationValue" />
+    </block>
+
+    <block wx:if="{{isMedicationComposer}}">
+      <view class="field-label">药品</view>
+      <picker mode="selector" range="{{medicationOptions}}" value="{{medicationIndex}}" bindchange="onPickerChange" data-field="medicationIndex">
+        <view class="field-picker">{{medicationOptions[medicationIndex]}}</view>
+      </picker>
+      <view class="field-label">剂量</view>
+      <input class="field-input" placeholder="如 1 滴 / 1 粒" value="{{dosageValue}}" bindinput="onInputChange" data-field="dosageValue" />
+    </block>
+
+    <block wx:if="{{isCareComposer}}">
+      <view class="field-label">护理项目</view>
+      <picker mode="selector" range="{{careTypeOptions}}" value="{{careTypeIndex}}" bindchange="onPickerChange" data-field="careTypeIndex">
+        <view class="field-picker">{{careTypeOptions[careTypeIndex]}}</view>
+      </picker>
+    </block>
+
+    <block wx:if="{{isOutingComposer}}">
+      <view class="field-label">外出类型</view>
+      <picker mode="selector" range="{{outingTypeOptions}}" value="{{outingTypeIndex}}" bindchange="onPickerChange" data-field="outingTypeIndex">
+        <view class="field-picker">{{outingTypeOptions[outingTypeIndex]}}</view>
+      </picker>
+      <view class="field-label">时长</view>
+      <input class="field-input" type="number" placeholder="分钟数，如 30" value="{{durationValue}}" bindinput="onInputChange" data-field="durationValue" />
+    </block>
+
+    <view class="field-label">备注</view>
+    <textarea class="field-input text-area" maxlength="80" placeholder="可选，记录宝宝状态或细节" value="{{noteValue}}" bindinput="onInputChange" data-field="noteValue"></textarea>
+
+    <button class="primary-button submit-button" bindtap="submitComposer">{{composerSubmitText}}</button>
+  </view>
+</view>

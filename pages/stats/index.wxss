@@ -1,0 +1,90 @@
+.intro-card,
+.trend-card {
+  padding: 28rpx;
+}
+
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 24rpx;
+}
+
+.stat-card {
+  width: 48%;
+  padding: 24rpx;
+  margin-bottom: 18rpx;
+  box-sizing: border-box;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #8b7665;
+}
+
+.stat-value {
+  margin-top: 12rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.stat-detail {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #957f6d;
+}
+
+.trend-title {
+  margin: 30rpx 0 18rpx;
+}
+
+.trend-card {
+  margin-bottom: 18rpx;
+}
+
+.trend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trend-date {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.trend-pill {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: #f7e8d9;
+  font-size: 22rpx;
+  color: #a25e40;
+}
+
+.trend-metrics {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 22rpx;
+}
+
+.trend-metric {
+  width: 31%;
+  padding: 18rpx;
+  border-radius: 18rpx;
+  background: #fff6ed;
+  box-sizing: border-box;
+}
+
+.metric-label {
+  display: block;
+  font-size: 22rpx;
+  color: #937d6a;
+}
+
+.metric-value {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+}

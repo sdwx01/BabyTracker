@@ -1,0 +1,111 @@
+page {
+  background: #f7f4ee;
+  color: #2f241d;
+  font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+.page-shell {
+  min-height: 100vh;
+  padding: 28rpx 24rpx 40rpx;
+  box-sizing: border-box;
+  background: #f7f4ee;
+}
+
+.hero-card,
+.surface-card,
+.timeline-card,
+.milestone-card,
+.reminder-card {
+  border-radius: 28rpx;
+  background: rgba(255, 252, 247, 0.92);
+  box-shadow: 0 20rpx 40rpx rgba(135, 104, 79, 0.08);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2d221d;
+}
+
+.section-subtitle {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8e7a68;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: #f2e2d5;
+  font-size: 22rpx;
+  color: #9d5c3e;
+}
+
+.primary-button {
+  border: none;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #e28a61 0%, #cc6441 100%);
+  color: #fffaf7;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.secondary-button {
+  border-radius: 24rpx;
+  border: 1rpx solid #eadccf;
+  background: #fffaf6;
+  color: #7b6555;
+  font-size: 28rpx;
+}
+
+.field-label {
+  margin-bottom: 12rpx;
+  font-size: 24rpx;
+  color: #6f5a4b;
+}
+
+.field-input,
+.field-picker {
+  width: 100%;
+  min-height: 84rpx;
+  padding: 22rpx 24rpx;
+  box-sizing: border-box;
+  border-radius: 22rpx;
+  background: #fff7f0;
+  font-size: 28rpx;
+  color: #2f241d;
+}
+
+.muted-text {
+  color: #8d7b6b;
+}
+
+.empty-state {
+  padding: 48rpx 32rpx;
+  text-align: center;
+  color: #8f7d6c;
+}
+
+.sheet-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(45, 34, 29, 0.32);
+  z-index: 98;
+}
+
+.sheet-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+  padding: 24rpx 24rpx 40rpx;
+  border-radius: 32rpx 32rpx 0 0;
+  background: #fffdf9;
+  box-shadow: 0 -12rpx 40rpx rgba(54, 39, 29, 0.12);
+}

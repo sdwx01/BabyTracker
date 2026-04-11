@@ -1,0 +1,175 @@
+.hero {
+  padding: 32rpx;
+}
+
+.hero-title {
+  margin-top: 22rpx;
+  font-size: 42rpx;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.hero-subtitle {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #816c5c;
+}
+
+.summary-card,
+.timeline-item {
+  margin-top: 24rpx;
+  padding: 28rpx;
+}
+
+.section-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.plain-row {
+  margin-top: 28rpx;
+}
+
+.summary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 24rpx;
+}
+
+.summary-item {
+  width: 48%;
+  padding: 24rpx;
+  margin-bottom: 18rpx;
+  border-radius: 22rpx;
+  background: #fff5ec;
+  box-sizing: border-box;
+}
+
+.summary-label {
+  font-size: 24rpx;
+  color: #927c69;
+}
+
+.summary-value {
+  margin-top: 10rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.action-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 20rpx;
+}
+
+.action-card {
+  width: 48%;
+  padding: 24rpx;
+  margin-bottom: 18rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, #fffaf5 0%, #fceddf 100%);
+  box-shadow: 0 20rpx 40rpx rgba(135, 104, 79, 0.07);
+  box-sizing: border-box;
+}
+
+.action-title {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.action-subtitle {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #8d7866;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 20rpx;
+}
+
+.timeline-time {
+  width: 88rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #cd6f48;
+}
+
+.timeline-main {
+  flex: 1;
+}
+
+.timeline-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timeline-title {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.timeline-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.timeline-link {
+  font-size: 24rpx;
+  color: #97775f;
+}
+
+.danger {
+  color: #cc6340;
+}
+
+.timeline-description {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #5a483c;
+}
+
+.timeline-note {
+  margin-top: 12rpx;
+  padding: 16rpx 18rpx;
+  border-radius: 18rpx;
+  background: #fcf3e8;
+  font-size: 24rpx;
+  color: #8d7564;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.sheet-close {
+  font-size: 26rpx;
+  color: #8a7564;
+}
+
+.field-row {
+  display: flex;
+  gap: 18rpx;
+  margin-bottom: 18rpx;
+}
+
+.field-half {
+  flex: 1;
+}
+
+.text-area {
+  min-height: 150rpx;
+}
+
+.submit-button {
+  margin-top: 24rpx;
+}

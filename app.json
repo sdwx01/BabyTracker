@@ -1,0 +1,48 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/stats/index",
+    "pages/milestones/index",
+    "pages/reminders/index",
+    "pages/profile/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "宝宝喂养记录",
+    "navigationBarBackgroundColor": "#F6EFE7",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F7F4EE",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "cloud": true,
+  "lazyCodeLoading": "requiredComponents",
+  "tabBar": {
+    "color": "#907B68",
+    "selectedColor": "#D46E4B",
+    "backgroundColor": "#FFFDF9",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "记录"
+      },
+      {
+        "pagePath": "pages/stats/index",
+        "text": "统计"
+      },
+      {
+        "pagePath": "pages/milestones/index",
+        "text": "第一次"
+      },
+      {
+        "pagePath": "pages/reminders/index",
+        "text": "提醒"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
+    ]
+  }
+}

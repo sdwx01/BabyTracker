@@ -1,0 +1,46 @@
+.reminder-hero,
+.reminder-item {
+  padding: 28rpx;
+}
+
+.hero-button {
+  margin-top: 20rpx;
+}
+
+.reminder-item {
+  margin-top: 20rpx;
+}
+
+.reminder-top,
+.reminder-bottom,
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.reminder-bottom {
+  margin-top: 20rpx;
+  align-items: flex-end;
+}
+
+.reminder-title {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.reminder-subtitle {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #8e7b69;
+}
+
+.complete-button {
+  min-width: 170rpx;
+}
+
+.sheet-close {
+  font-size: 26rpx;
+  color: #8a7564;
+}

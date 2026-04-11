@@ -1,0 +1,9 @@
+{
+  "name": "baby-tracker-cloud-function",
+  "version": "1.0.0",
+  "description": "Cloud sync entry for BabyTracker mini program",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

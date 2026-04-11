@@ -1,0 +1,74 @@
+<view class="page-shell">
+  <view class="hero-card milestone-hero">
+    <view class="section-title">宝宝的各种第一次</view>
+    <view class="section-subtitle">把重要时刻单独收好，支持照片和视频</view>
+    <button class="primary-button hero-button" bindtap="openEditor">新增里程碑</button>
+  </view>
+
+  <view wx:if="{{hasMilestones}}">
+    <view class="milestone-card milestone-item" wx:for="{{milestones}}" wx:key="id">
+      <view class="milestone-head">
+        <view>
+          <view class="milestone-title">{{item.title}}</view>
+          <view class="milestone-date">{{item.occurredOn}}</view>
+        </view>
+        <view class="milestone-head-actions">
+          <view class="pill">{{item.mediaCountText}}</view>
+          <text class="milestone-delete" bindtap="deleteMilestone" data-id="{{item.id}}">删除</text>
+        </view>
+      </view>
+      <view wx:if="{{item.hasNote}}" class="milestone-note">{{item.note}}</view>
+      <scroll-view wx:if="{{item.hasMedia}}" class="media-scroll" scroll-x="true">
+        <view class="media-track">
+          <view class="media-item" wx:for="{{item.mediaList}}" wx:for-item="media" wx:key="id" bindtap="previewMilestoneMedia" data-milestone-id="{{item.id}}" data-media-id="{{media.id}}">
+            <image wx:if="{{media.isImage}}" class="media-thumb" src="{{media.previewPath}}" mode="aspectFill"></image>
+            <view wx:else class="video-thumb">
+              <image class="media-thumb" src="{{media.previewPath}}" mode="aspectFill"></image>
+              <view class="video-tag">视频</view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+  <view wx:else class="surface-card empty-state">
+    先记录一个“第一次微笑”或者“第一次抬头”。
+  </view>
+</view>
+
+<view wx:if="{{showEditor}}">
+  <view class="sheet-mask" bindtap="closeEditor"></view>
+  <view class="sheet-panel">
+    <view class="sheet-header">
+      <view>
+        <view class="section-title">新增里程碑</view>
+        <view class="section-subtitle">把成长瞬间和素材绑定在一起</view>
+      </view>
+      <text class="sheet-close" bindtap="closeEditor">关闭</text>
+    </view>
+
+    <view class="field-label">标题</view>
+    <input class="field-input" placeholder="如 第一次翻身" value="{{titleValue}}" bindinput="onInputChange" data-field="titleValue" />
+
+    <view class="field-label">日期</view>
+    <picker mode="date" value="{{dateValue}}" bindchange="onDateChange">
+      <view class="field-picker">{{dateValue}}</view>
+    </picker>
+
+    <view class="field-label">说明</view>
+    <textarea class="field-input milestone-textarea" maxlength="120" placeholder="记录发生时的样子和你的感受" value="{{noteValue}}" bindinput="onInputChange" data-field="noteValue"></textarea>
+
+    <view class="media-section">
+      <view class="field-label">照片 / 视频</view>
+      <button class="secondary-button" bindtap="chooseMedia" disabled="{{uploadingMedia}}">选择素材</button>
+      <view class="editor-media-grid">
+        <view class="editor-media-item" wx:for="{{mediaList}}" wx:key="id">
+          <image class="editor-media-thumb" src="{{item.thumbPath}}" mode="aspectFill"></image>
+          <text class="editor-media-remove" bindtap="removeMedia" data-id="{{item.id}}">移除</text>
+        </view>
+      </view>
+    </view>
+
+    <button class="primary-button submit-button" bindtap="submitMilestone" loading="{{uploadingMedia}}" disabled="{{uploadingMedia}}">保存里程碑</button>
+  </view>
+</view>

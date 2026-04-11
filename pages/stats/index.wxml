@@ -1,0 +1,36 @@
+<view class="page-shell">
+  <view class="surface-card intro-card">
+    <view class="section-title">轻量统计</view>
+    <view class="section-subtitle">只保留照护中真正有用的几个指标，不做复杂报表</view>
+  </view>
+
+  <view class="stats-grid">
+    <view class="surface-card stat-card" wx:for="{{cards}}" wx:key="label">
+      <view class="stat-label">{{item.label}}</view>
+      <view class="stat-value">{{item.value}}</view>
+      <view class="stat-detail">{{item.detail}}</view>
+    </view>
+  </view>
+
+  <view class="section-title trend-title">最近 7 天</view>
+  <view class="surface-card trend-card" wx:for="{{trend}}" wx:key="date">
+    <view class="trend-row">
+      <view class="trend-date">{{item.label}}</view>
+      <view class="trend-pill">{{item.feedCount}} 次喂奶</view>
+    </view>
+    <view class="trend-metrics">
+      <view class="trend-metric">
+        <text class="metric-label">奶量</text>
+        <text class="metric-value">{{item.totalMilkMl}} ml</text>
+      </view>
+      <view class="trend-metric">
+        <text class="metric-label">睡眠</text>
+        <text class="metric-value">{{item.sleepLabel}}</text>
+      </view>
+      <view class="trend-metric">
+        <text class="metric-label">尿布</text>
+        <text class="metric-value">{{item.diaperCount}} 次</text>
+      </view>
+    </view>
+  </view>
+</view>

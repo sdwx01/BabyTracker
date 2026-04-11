@@ -1,0 +1,48 @@
+<view class="page-shell">
+  <view class="hero-card reminder-hero">
+    <view class="section-title">基础提醒</view>
+    <view class="section-subtitle">首版只做简单、稳定的提醒规则，适合维 AD / 维 D 这类固定动作</view>
+    <button class="primary-button hero-button" bindtap="openEditor">新增提醒</button>
+  </view>
+
+  <view wx:if="{{hasReminders}}" class="reminder-list">
+    <view class="reminder-card reminder-item" wx:for="{{reminders}}" wx:key="id">
+      <view class="reminder-top">
+        <view>
+          <view class="reminder-title">{{item.title}}</view>
+          <view class="reminder-subtitle">{{item.dosage}} · {{item.scheduleTime}} · {{item.frequencyLabel}}</view>
+        </view>
+        <switch checked="{{item.enabled}}" color="#d46e4b" bindchange="onSwitchChange" data-id="{{item.id}}" />
+      </view>
+      <view class="reminder-bottom">
+        <view class="muted-text">{{item.statusText}}</view>
+        <button class="secondary-button complete-button" bindtap="completeReminder" data-id="{{item.id}}">标记完成</button>
+      </view>
+    </view>
+  </view>
+  <view wx:else class="surface-card empty-state">
+    还没有提醒，先添加一个维生素提醒。
+  </view>
+</view>
+
+<view wx:if="{{showEditor}}">
+  <view class="sheet-mask" bindtap="closeEditor"></view>
+  <view class="sheet-panel">
+    <view class="sheet-header">
+      <view>
+        <view class="section-title">新增提醒</view>
+        <view class="section-subtitle">固定时点、每日重复</view>
+      </view>
+      <text class="sheet-close" bindtap="closeEditor">关闭</text>
+    </view>
+    <view class="field-label">提醒名称</view>
+    <input class="field-input" placeholder="如 维生素D" value="{{titleValue}}" bindinput="onInputChange" data-field="titleValue" />
+    <view class="field-label">剂量</view>
+    <input class="field-input" placeholder="如 1 滴" value="{{dosageValue}}" bindinput="onInputChange" data-field="dosageValue" />
+    <view class="field-label">提醒时间</view>
+    <picker mode="time" value="{{timeValue}}" bindchange="onTimeChange">
+      <view class="field-picker">{{timeValue}}</view>
+    </picker>
+    <button class="primary-button submit-button" bindtap="submitReminder">保存提醒</button>
+  </view>
+</view>
