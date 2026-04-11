@@ -11,6 +11,12 @@ const _ = db.command;
 
 const randomCode = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 const generateInviteCode = () => `BABY-${randomCode()}`;
+const createDefaultCaregiver = () => ({
+  id: "cg_owner",
+  name: "我",
+  role: "待设置",
+  joinedAt: new Date().toISOString().replace("T", " ").slice(0, 16)
+});
 
 const normalizeSeedCaregivers = (caregivers) => {
   const list = Array.isArray(caregivers) ? caregivers : [];
@@ -36,39 +42,10 @@ const normalizeSeedCaregivers = (caregivers) => {
 };
 
 const createSeedStore = () => {
-  const now = new Date().toISOString().replace("T", " ").slice(0, 16);
-  const today = now.slice(0, 10);
-
   return {
-    baby: {
-      id: "baby_1",
-      nickname: "糯米",
-      birthDate: "2025-12-02",
-      gender: "girl",
-      avatarText: "糯"
-    },
-    caregivers: [
-      {
-        id: "cg_owner",
-        name: "当前照护者",
-        role: "创建者",
-        joinedAt: now
-      }
-    ],
-    records: [
-      {
-        id: `record_${Date.now()}`,
-        babyId: "baby_1",
-        type: "feed",
-        occurredAt: `${today} 08:30`,
-        createdBy: "cg_owner",
-        note: "云端初始化样例数据",
-        payload: {
-          mode: "瓶喂",
-          amountMl: 120
-        }
-      }
-    ],
+    baby: null,
+    caregivers: [createDefaultCaregiver()],
+    records: [],
     milestones: [],
     reminders: []
   };
@@ -80,22 +57,24 @@ const sanitizeStore = (store) => {
   }
 
   return {
-    baby: store.baby || createSeedStore().baby,
-    caregivers: normalizeSeedCaregivers(store.caregivers),
+    baby: store.baby || null,
+    caregivers: normalizeSeedCaregivers(store.caregivers).length
+      ? normalizeSeedCaregivers(store.caregivers)
+      : [createDefaultCaregiver()],
     records: Array.isArray(store.records) ? store.records : [],
     milestones: Array.isArray(store.milestones) ? store.milestones : [],
     reminders: Array.isArray(store.reminders) ? store.reminders : []
   };
 };
 
-const listFamilyMembers = async (familyId, store) => {
+const getFamilyMembersData = async (familyId, store) => {
   const result = await members.where({
     familyId: _.eq(familyId)
   }).get();
   const memberDocs = (result && result.data) || [];
   const caregivers = sanitizeStore(store).caregivers;
 
-  return memberDocs.map((member) => {
+  const memberSummaries = memberDocs.map((member) => {
     const matchedCaregiver =
       caregivers.find((item) => item.id === member.caregiverId) ||
       caregivers.find((item) => item.name === member.displayName);
@@ -108,10 +87,26 @@ const listFamilyMembers = async (familyId, store) => {
       joinedAt: member.createdAt || (matchedCaregiver && matchedCaregiver.joinedAt) || ""
     };
   });
+
+  return {
+    memberDocs,
+    memberSummaries
+  };
 };
 
-const buildResponse = async (doc, extras) => {
-  const memberSummaries = await listFamilyMembers(doc._id, doc.store);
+const buildResponse = async (doc, extras, openid) => {
+  const memberData = await getFamilyMembersData(doc._id, doc.store);
+  const memberSummaries = memberData.memberSummaries;
+  const currentMemberDoc = memberData.memberDocs.find((item) => item._id === openid);
+  const currentMember = currentMemberDoc
+    ? {
+        id: currentMemberDoc._id,
+        name: currentMemberDoc.displayName || "照护者",
+        role: currentMemberDoc.role || "共同照护者",
+        caregiverId: currentMemberDoc.caregiverId || "",
+        isOwner: !!currentMemberDoc.isOwner
+      }
+    : null;
   return Object.assign(
     {
       ok: true,
@@ -119,6 +114,7 @@ const buildResponse = async (doc, extras) => {
       familyId: doc._id,
       inviteCode: doc.inviteCode || "",
       memberSummaries,
+      currentMember,
       updatedAt: doc.updatedAt || "",
       version: doc.version || 1
     },
@@ -314,7 +310,7 @@ exports.main = async (event) => {
     const doc = await ensureFamilyContext(OPENID, event.localStore);
     return buildResponse(doc, {
       mode: "bootstrap"
-    });
+    }, OPENID);
   }
 
   if (action === "syncStore") {
@@ -327,7 +323,8 @@ exports.main = async (event) => {
       Object.assign({}, existing, updatedFamily),
       {
         mode: "sync"
-      }
+      },
+      OPENID
     );
   }
 
@@ -335,7 +332,7 @@ exports.main = async (event) => {
     const doc = await ensureFamilyContext(OPENID, event.localStore);
     return buildResponse(doc, {
       mode: "get"
-    });
+    }, OPENID);
   }
 
   if (action === "joinFamily") {
@@ -371,7 +368,7 @@ exports.main = async (event) => {
     const latestFamily = await getFamilyDoc(targetFamily._id);
     return buildResponse(latestFamily.data, {
       mode: "join"
-    });
+    }, OPENID);
   }
 
   if (action === "updateMemberProfile") {
@@ -408,7 +405,7 @@ exports.main = async (event) => {
     const latestFamily = await getFamilyDoc(familyDoc._id);
     return buildResponse(latestFamily.data, {
       mode: "updateMemberProfile"
-    });
+    }, OPENID);
   }
 
   return {

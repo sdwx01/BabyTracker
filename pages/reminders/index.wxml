@@ -12,7 +12,7 @@
           <view class="reminder-title">{{item.title}}</view>
           <view class="reminder-subtitle">{{item.dosage}} · {{item.scheduleTime}} · {{item.frequencyLabel}}</view>
         </view>
-        <switch checked="{{item.enabled}}" color="#d46e4b" bindchange="onSwitchChange" data-id="{{item.id}}" />
+        <button class="secondary-button edit-button" bindtap="openEditReminder" data-id="{{item.id}}">编辑</button>
       </view>
       <view class="reminder-bottom">
         <view class="muted-text">{{item.statusText}}</view>
@@ -30,7 +30,7 @@
   <view class="sheet-panel">
     <view class="sheet-header">
       <view>
-        <view class="section-title">新增提醒</view>
+        <view class="section-title">{{editorTitle}}</view>
         <view class="section-subtitle">固定时点、每日重复</view>
       </view>
       <text class="sheet-close" bindtap="closeEditor">关闭</text>
@@ -43,6 +43,13 @@
     <picker mode="time" value="{{timeValue}}" bindchange="onTimeChange">
       <view class="field-picker">{{timeValue}}</view>
     </picker>
+    <view class="toggle-row">
+      <view>
+        <view class="field-label">提醒状态</view>
+        <view class="toggle-text">{{enabledValue ? "已启用" : "已暂停"}}</view>
+      </view>
+      <switch checked="{{enabledValue}}" color="#d46e4b" bindchange="onEnabledChange" />
+    </view>
     <button class="primary-button submit-button" bindtap="submitReminder">保存提醒</button>
   </view>
 </view>

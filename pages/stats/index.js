@@ -1,5 +1,5 @@
 const { minutesToDuration } = require("../../utils/date");
-const { waitForInitialStore } = require("../../utils/page");
+const { ensureReadyOrRedirect } = require("../../utils/page");
 const { getTodaySummary, getWeeklyTrend } = require("../../utils/store");
 
 Page({
@@ -8,8 +8,10 @@ Page({
     trend: []
   },
   onShow() {
-    waitForInitialStore().then(() => {
-      this.renderPage();
+    ensureReadyOrRedirect().then((result) => {
+      if (result && result.ready) {
+        this.renderPage();
+      }
     });
   },
   renderPage() {

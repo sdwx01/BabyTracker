@@ -1,6 +1,8 @@
 const {
   formatDate,
   formatDateTime,
+  formatAge,
+  formatTimeSince,
   humanDateLabel,
   lastNDates,
   minutesToDuration,
@@ -25,6 +27,13 @@ const STORAGE_KEY = "baby-tracker-store-v1";
 const SETTINGS_KEY = "baby-tracker-settings-v1";
 
 const createId = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+const createEmptyBaby = () => null;
+const createDefaultCaregiver = () => ({
+  id: "cg_owner",
+  name: "我",
+  role: "待设置",
+  joinedAt: formatDateTime(new Date())
+});
 
 const normalizeSeedCaregivers = (caregivers) => {
   const list = Array.isArray(caregivers) ? caregivers : [];
@@ -50,138 +59,22 @@ const normalizeSeedCaregivers = (caregivers) => {
 };
 
 const seedStore = () => {
-  const baby = {
-    id: "baby_1",
-    nickname: "糯米",
-    birthDate: "2025-12-02",
-    gender: "girl",
-    avatarText: "糯"
-  };
-
-  const caregivers = [
-    {
-      id: "cg_owner",
-      name: "当前照护者",
-      role: "创建者",
-      joinedAt: formatDateTime(new Date())
-    }
-  ];
-
-  const now = new Date();
-  const todayDate = formatDate(now);
-  const earlier = new Date(now.getTime() - 90 * 60 * 1000);
-  const morning = new Date(now.getTime() - 7 * 60 * 60 * 1000);
-  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-  const records = [
-    {
-      id: createId("record"),
-      babyId: baby.id,
-      type: "feed",
-      occurredAt: formatDateTime(morning),
-      createdBy: caregivers[0].id,
-      note: "喝得很快，状态不错",
-      payload: {
-        mode: "瓶喂",
-        amountMl: 120
-      }
-    },
-    {
-      id: createId("record"),
-      babyId: baby.id,
-      type: "sleep",
-      occurredAt: formatDateTime(earlier),
-      createdBy: caregivers[0].id,
-      payload: {
-        durationMin: 95
-      }
-    },
-    {
-      id: createId("record"),
-      babyId: baby.id,
-      type: "diaper",
-      occurredAt: formatDateTime(now),
-      createdBy: caregivers[0].id,
-      payload: {
-        diaperKind: "小便",
-        diaperStatus: "正常"
-      }
-    },
-    {
-      id: createId("record"),
-      babyId: baby.id,
-      type: "medication",
-      occurredAt: `${todayDate} 09:00`,
-      createdBy: caregivers[0].id,
-      payload: {
-        medicationName: "维生素D",
-        dosage: "1 滴"
-      }
-    },
-    {
-      id: createId("record"),
-      babyId: baby.id,
-      type: "feed",
-      occurredAt: formatDateTime(yesterday),
-      createdBy: caregivers[0].id,
-      payload: {
-        mode: "母乳",
-        durationMin: 18,
-        side: "双侧"
-      }
-    }
-  ];
-
-  const milestones = [
-    {
-      id: createId("milestone"),
-      babyId: baby.id,
-      title: "第一次抬头稳稳撑住",
-      occurredOn: todayDate,
-      note: "趴着的时候明显更有力了。",
-      createdBy: caregivers[0].id,
-      mediaList: []
-    }
-  ];
-
-  const reminders = [
-    {
-      id: createId("reminder"),
-      babyId: baby.id,
-      title: "维生素AD",
-      dosage: "1 粒",
-      enabled: true,
-      scheduleTime: "08:30",
-      frequencyLabel: "每日",
-      lastCompletedAt: `${todayDate} 08:31`
-    },
-    {
-      id: createId("reminder"),
-      babyId: baby.id,
-      title: "维生素D",
-      dosage: "1 滴",
-      enabled: true,
-      scheduleTime: "19:30",
-      frequencyLabel: "每日"
-    }
-  ];
-
   return {
-    baby,
-    caregivers,
-    records,
-    milestones,
-    reminders
+    baby: createEmptyBaby(),
+    caregivers: [createDefaultCaregiver()],
+    records: [],
+    milestones: [],
+    reminders: []
   };
 };
 
 const readStore = () => {
   const store = wx.getStorageSync(STORAGE_KEY);
-  return store || seedStore();
+  return sanitizeStoreForLocal(store || seedStore());
 };
 
 const writeStore = (store) => {
-  wx.setStorageSync(STORAGE_KEY, store);
+  wx.setStorageSync(STORAGE_KEY, sanitizeStoreForLocal(store));
 };
 
 const defaultSettings = () => ({
@@ -192,9 +85,11 @@ const defaultSettings = () => ({
   familyId: "",
   inviteCode: "",
   memberSummaries: [],
+  currentMember: null,
   lastSyncAt: "",
   syncInFlight: false,
-  lastError: ""
+  lastError: "",
+  onboardingCompleted: false
 });
 
 const readSettings = () => {
@@ -224,7 +119,7 @@ const markCloudSync = () => {
 
 const markCloudError = (error) => {
   const settings = readSettings();
-  settings.lastError = (error && error.message) || "cloud sync failed";
+  settings.lastError = (error && error.message) || "sync failed";
   settings.lastSyncMode = "local";
   writeSettings(settings);
 };
@@ -233,6 +128,8 @@ const initializeStore = () => {
   const store = wx.getStorageSync(STORAGE_KEY);
   if (!store) {
     writeStore(seedStore());
+  } else {
+    writeStore(store);
   }
   const settings = readSettings();
   settings.cloudEnvId = CLOUD_ENV_ID || "";
@@ -258,34 +155,69 @@ const applyCloudIdentity = (result) => {
   settings.familyId = result.familyId || settings.familyId || "";
   settings.inviteCode = result.inviteCode || settings.inviteCode || "";
   settings.memberSummaries = Array.isArray(result.memberSummaries) ? result.memberSummaries : settings.memberSummaries || [];
+  settings.currentMember = result.currentMember || settings.currentMember || null;
+  if (settings.familyId || (result.store && result.store.baby)) {
+    settings.onboardingCompleted = true;
+  }
   writeSettings(settings);
+};
+
+const completeOnboarding = () => {
+  const settings = readSettings();
+  settings.onboardingCompleted = true;
+  writeSettings(settings);
+};
+
+const hasBaby = () => {
+  const baby = readStore().baby;
+  return !!(baby && baby.id && baby.nickname);
+};
+
+const getAppEntryState = () => {
+  const settings = readSettings();
+  if (hasBaby()) {
+    return "ready";
+  }
+  if (settings.onboardingCompleted || settings.familyId) {
+    return "needs_baby_setup";
+  }
+  return "needs_onboarding";
 };
 
 const getDataSourceStatus = () => {
   const settings = readSettings();
-  const usingCloud = !!(settings.cloudReady && settings.preferCloudSync && settings.cloudEnvId);
+  const cloudConnected = !!(settings.cloudReady && settings.cloudEnvId && isCloudAvailable());
+  const usingCloud = !!(cloudConnected && settings.preferCloudSync);
+  const lastSyncLabel = settings.lastSyncAt ? `最近同步 ${settings.lastSyncAt}` : "";
+  let statusText = "当前仅保存在本设备";
+  let hintText = "不开启也能继续记录，数据会保存在当前设备。";
+
+  if (usingCloud) {
+    statusText = "已开启云端同步，记录会自动同步";
+    hintText = "开启后会自动同步到云端，也能通过邀请码邀请家人一起记录。";
+  } else if (cloudConnected) {
+    hintText = "开启后会自动同步到云端，换设备也能继续查看记录。";
+  } else if (settings.preferCloudSync && !cloudConnected) {
+    hintText = "当前还未连接云端，记录仍会保存在本设备。";
+  }
 
   return {
     preferCloudSync: settings.preferCloudSync,
+    syncEnabled: usingCloud,
     cloudReady: settings.cloudReady,
     cloudEnvId: settings.cloudEnvId,
     familyId: settings.familyId,
     inviteCode: settings.inviteCode,
     memberSummaries: Array.isArray(settings.memberSummaries) ? settings.memberSummaries : [],
-    lastSyncMode: usingCloud ? "cloud-ready" : settings.lastSyncMode || "local",
+    lastSyncMode: usingCloud ? "cloud" : settings.lastSyncMode || "local",
     lastSyncAt: settings.lastSyncAt,
-    modeLabel: usingCloud ? "云开发就绪" : "本地存储",
-    syncMetaText: settings.lastSyncAt
-      ? `${usingCloud ? "云开发就绪" : "本地存储"} · 最近同步 ${settings.lastSyncAt}`
-      : (usingCloud ? "云开发就绪" : "本地存储"),
-    statusText: usingCloud
-      ? `已连接云环境 ${settings.cloudEnvId}，当前仍保留本地回退`
-      : "当前使用本地存储，后续可接入云开发同步",
-    hintText: settings.cloudEnvId
-      ? "当前已填写云环境 ID，下一步可以继续接云数据库集合与云函数。"
-      : "如需真正云端同步，请在 utils/config.js 中填写云环境 ID。",
-    canUseCloud: !!(settings.cloudReady && settings.cloudEnvId),
-    lastError: settings.lastError || ""
+    modeLabel: usingCloud ? "云端同步" : "本地记录",
+    syncMetaText: lastSyncLabel || (usingCloud ? "开启后会自动同步" : "当前未连接云端同步"),
+    statusText,
+    hintText,
+    canUseCloud: cloudConnected,
+    lastError: settings.lastError ? "上次同步未完成，已自动保留本地记录。" : "",
+    hasInviteCode: !!settings.inviteCode
   };
 };
 
@@ -304,7 +236,32 @@ const canUseCloudSync = () => {
 const getFamilyId = () => readSettings().familyId || "";
 const getMemberSummaries = () => {
   const settings = readSettings();
-  return Array.isArray(settings.memberSummaries) ? settings.memberSummaries : [];
+  if (Array.isArray(settings.memberSummaries) && settings.memberSummaries.length) {
+    return settings.memberSummaries;
+  }
+
+  return getCaregivers().map((item, index) => ({
+    id: item.id,
+    name: item.name,
+    role: item.role,
+    isOwner: index === 0,
+    joinedAt: item.joinedAt || ""
+  }));
+};
+
+const getCurrentMemberProfile = () => {
+  const settings = readSettings();
+  if (settings.currentMember) {
+    return settings.currentMember;
+  }
+  const caregiver = getCaregivers()[0] || createDefaultCaregiver();
+  return {
+    id: caregiver.id,
+    name: caregiver.name,
+    role: caregiver.role,
+    caregiverId: caregiver.id,
+    isOwner: true
+  };
 };
 
 const writeCloudStoreToLocal = (store) => {
@@ -313,11 +270,13 @@ const writeCloudStoreToLocal = (store) => {
 
 const sanitizeStoreForLocal = (store) => {
   return {
-    baby: store.baby || seedStore().baby,
-    caregivers: normalizeSeedCaregivers(store.caregivers),
-    records: Array.isArray(store.records) ? store.records : [],
-    milestones: Array.isArray(store.milestones) ? store.milestones : [],
-    reminders: Array.isArray(store.reminders) ? store.reminders : []
+    baby: store && store.baby ? store.baby : createEmptyBaby(),
+    caregivers: normalizeSeedCaregivers(store && store.caregivers).length
+      ? normalizeSeedCaregivers(store && store.caregivers)
+      : [createDefaultCaregiver()],
+    records: Array.isArray(store && store.records) ? store.records : [],
+    milestones: Array.isArray(store && store.milestones) ? store.milestones : [],
+    reminders: Array.isArray(store && store.reminders) ? store.reminders : []
   };
 };
 
@@ -418,12 +377,35 @@ const syncStoreToCloud = () => {
   });
 };
 
-const getBaby = () => readStore().baby;
+const getBaby = () => {
+  const baby = readStore().baby;
+  if (baby) {
+    return baby;
+  }
+  return {
+    id: "",
+    nickname: "",
+    birthDate: "",
+    gender: "",
+    avatarText: "宝"
+  };
+};
 
 const updateBaby = (patch) => {
   const store = readStore();
-  store.baby = Object.assign({}, store.baby, patch);
+  const currentBaby = store.baby || {
+    id: createId("baby"),
+    nickname: "",
+    birthDate: "",
+    gender: "",
+    avatarText: "宝"
+  };
+  store.baby = Object.assign({}, currentBaby, patch, {
+    id: currentBaby.id || createId("baby"),
+    avatarText: ((patch && patch.avatarText) || currentBaby.avatarText || (patch && patch.nickname && patch.nickname.slice(0, 1)) || "宝").slice(0, 1)
+  });
   writeStore(store);
+  completeOnboarding();
   markLocalSync();
   syncStoreToCloud();
   return store.baby;
@@ -433,12 +415,74 @@ const getCaregivers = () => readStore().caregivers;
 
 const getInviteCode = () => readSettings().inviteCode || "";
 
+const updateLocalCaregiver = (displayName, role) => {
+  const store = readStore();
+  const nextName = (displayName || "").trim() || "我";
+  const nextRole = (role || "").trim() || "共同照护者";
+  const settings = readSettings();
+  const currentMember = settings.currentMember || {};
+  const caregiverId = currentMember.caregiverId || (store.caregivers[0] && store.caregivers[0].id) || "cg_owner";
+  const fallback = store.caregivers[0] || createDefaultCaregiver();
+  let matched = false;
+  store.caregivers = store.caregivers.map((item) => {
+    if (item.id === caregiverId) {
+      matched = true;
+      return Object.assign({}, item, {
+        name: nextName,
+        role: nextRole
+      });
+    }
+    return item;
+  });
+  if (!matched) {
+    store.caregivers.unshift(
+      Object.assign({}, fallback, {
+        id: caregiverId,
+        name: nextName,
+        role: nextRole
+      })
+    );
+  }
+  writeStore(store);
+
+  if (!Array.isArray(settings.memberSummaries) || !settings.memberSummaries.length) {
+    settings.memberSummaries = [
+      {
+        id: caregiverId,
+        name: nextName,
+        role: nextRole,
+        isOwner: true,
+        joinedAt: fallback.joinedAt
+      }
+    ];
+  } else {
+    settings.memberSummaries = settings.memberSummaries.map((item, index) => {
+      if (item.id === caregiverId || item.caregiverId === caregiverId || (!currentMember.id && index === 0)) {
+        return Object.assign({}, item, {
+          name: nextName,
+          role: nextRole
+        });
+      }
+      return item;
+    });
+  }
+  settings.currentMember = Object.assign({}, currentMember, {
+    caregiverId,
+    name: nextName,
+    role: nextRole
+  });
+  writeSettings(settings);
+  markLocalSync();
+  return store.caregivers.find((item) => item.id === caregiverId) || store.caregivers[0];
+};
+
 const createRecord = (input) => {
   const store = readStore();
+  const owner = store.caregivers[0] || createDefaultCaregiver();
   const record = Object.assign({}, input, {
     id: createId("record"),
-    babyId: store.baby.id,
-    createdBy: input.createdBy || store.caregivers[0].id
+    babyId: store.baby && store.baby.id,
+    createdBy: input.createdBy || owner.id
   });
   store.records.unshift(record);
   writeStore(store);
@@ -516,10 +560,11 @@ const listMilestones = () => {
 
 const createMilestone = (input) => {
   const store = readStore();
+  const owner = store.caregivers[0] || createDefaultCaregiver();
   const milestone = Object.assign({}, input, {
     id: createId("milestone"),
-    babyId: store.baby.id,
-    createdBy: input.createdBy || store.caregivers[0].id
+    babyId: store.baby && store.baby.id,
+    createdBy: input.createdBy || owner.id
   });
   store.milestones.unshift(milestone);
   writeStore(store);
@@ -669,7 +714,7 @@ const upsertReminder = (input) => {
   } else {
     store.reminders.unshift(Object.assign({
       id: createId("reminder"),
-      babyId: store.baby.id,
+      babyId: store.baby && store.baby.id,
       enabled: true,
       scheduleTime: "08:00",
       frequencyLabel: "每日"
@@ -759,6 +804,18 @@ const getRecordTitle = (type) => {
   return titles[type];
 };
 
+const getActionSubtitle = (type) => {
+  const subtitles = {
+    feed: "母乳 / 瓶喂 / 配方",
+    diaper: "大小便 / 更换",
+    sleep: "时长一键记录",
+    medication: "维 AD / 维 D",
+    care: "身体乳 / 洗澡",
+    outing: "散步 / 出门小记"
+  };
+  return subtitles[type] || "";
+};
+
 const describeRecord = (record) => {
   switch (record.type) {
     case "feed":
@@ -779,6 +836,50 @@ const describeRecord = (record) => {
     default:
       return "已记录";
   }
+};
+
+const findLatestRecordByType = (type) => {
+  const records = readStore().records
+    .filter((record) => record.type === type)
+    .sort((left, right) => right.occurredAt.localeCompare(left.occurredAt));
+
+  return records[0] || null;
+};
+
+const getLastActionCards = () => {
+  const actionTypes = ["feed", "diaper", "sleep", "medication", "care", "outing"];
+  return actionTypes.map((type) => {
+    const latestRecord = findLatestRecordByType(type);
+    return {
+      type,
+      title: getRecordTitle(type),
+      sinceText: latestRecord ? formatTimeSince(latestRecord.occurredAt) : "还没有记录",
+      summaryText: latestRecord ? describeRecord(latestRecord) : "点一下开始第一次记录",
+      isEmpty: !latestRecord
+    };
+  });
+};
+
+const getQuickActionCards = () => {
+  return getLastActionCards().map((item) => ({
+    type: item.type,
+    title: item.title,
+    subtitle: getActionSubtitle(item.type),
+    metaText: item.sinceText,
+    summaryText: item.summaryText
+  }));
+};
+
+const getHomeOverview = () => {
+  const baby = getBaby();
+  return {
+    babyName: baby.nickname || "宝宝",
+    ageText: baby.birthDate ? formatAge(baby.birthDate) : "年龄待补充",
+    infoText: baby.birthDate ? `出生于 ${baby.birthDate}` : "先补充宝宝生日，首页会自动计算年龄",
+    lastActionCards: getLastActionCards(),
+    quickActionCards: getQuickActionCards(),
+    timeline: getTimelineItems()
+  };
 };
 
 const getTimelineItems = (dateValue = today()) => {
@@ -819,6 +920,7 @@ const getDashboardCards = (dateValue = today()) => {
 };
 
 const getQuickInsights = () => {
+  const baby = getBaby();
   const reminders = getReminders().filter((reminder) => reminder.enabled);
 
   const pendingReminder = reminders.find((reminder) => {
@@ -829,10 +931,10 @@ const getQuickInsights = () => {
   });
 
   return {
-    heroTitle: `${getBaby().nickname} 今天过得很充实`,
+    heroTitle: baby.nickname ? `${baby.nickname} 今天过得很充实` : "从今天开始记录宝宝日常",
     heroSubtitle: pendingReminder
       ? `${pendingReminder.title} 还没完成，建议在 ${pendingReminder.scheduleTime} 前后提醒自己`
-      : "高频记录都集中在首页，两步内完成一次记录"
+      : (baby.nickname ? "高频记录都集中在首页，两步内完成一次记录" : "先添加宝宝资料，再开始喂养、睡眠和里程碑记录")
   };
 };
 
@@ -840,9 +942,9 @@ const getMilestoneViewModels = () => {
   return listMilestones().map((milestone) =>
     Object.assign({}, milestone, {
       hasNote: !!milestone.note,
-      hasMedia: milestone.mediaList.length > 0,
-      mediaCountText: `${milestone.mediaList.length} 个素材`,
-      mediaList: milestone.mediaList.map((media) =>
+      hasMedia: (milestone.mediaList || []).length > 0,
+      mediaCountText: `${(milestone.mediaList || []).length} 个素材`,
+      mediaList: (milestone.mediaList || []).map((media) =>
         Object.assign({}, media, {
           isImage: media.kind === "image",
           previewPath: media.thumbCloudFileId || media.cloudFileId || media.thumbPath || media.filePath
@@ -867,6 +969,7 @@ const joinFamilyByInviteCode = (inviteCode, caregiverName, caregiverRole) => {
         if (result && result.store) {
           writeCloudStoreToLocal(result.store);
           applyCloudIdentity(result);
+          completeOnboarding();
           markCloudSync();
         }
         resolve(result || { ok: false });
@@ -883,10 +986,14 @@ const joinFamilyByInviteCode = (inviteCode, caregiverName, caregiverRole) => {
 
 const updateMemberProfile = (displayName, role) => {
   return new Promise((resolve) => {
+    const nextMember = updateLocalCaregiver(displayName, role);
+    completeOnboarding();
+
     if (!canUseCloudSync()) {
       resolve({
-        ok: false,
-        message: "cloud unavailable"
+        ok: true,
+        mode: "local",
+        caregiver: nextMember
       });
       return;
     }
@@ -903,8 +1010,10 @@ const updateMemberProfile = (displayName, role) => {
       .catch((error) => {
         markCloudError(error);
         resolve({
-          ok: false,
-          message: (error && error.message) || "update member profile failed"
+          ok: true,
+          mode: "local",
+          message: (error && error.message) || "update member profile failed",
+          caregiver: nextMember
         });
       });
   });
@@ -922,6 +1031,10 @@ module.exports = {
   updateMemberProfile,
   getFamilyId,
   getMemberSummaries,
+  getCurrentMemberProfile,
+  hasBaby,
+  getAppEntryState,
+  completeOnboarding,
   getBaby,
   updateBaby,
   getCaregivers,
@@ -948,5 +1061,6 @@ module.exports = {
   getTimelineItems,
   getDashboardCards,
   getQuickInsights,
-  getMilestoneViewModels
+  getMilestoneViewModels,
+  getHomeOverview
 };

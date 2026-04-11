@@ -1,13 +1,11 @@
 const { formatTime, today } = require("../../utils/date");
-const { waitForInitialStore } = require("../../utils/page");
+const { ensureReadyOrRedirect } = require("../../utils/page");
 const {
   createRecord,
   deleteRecord,
   duplicateRecord,
-  getDashboardCards,
+  getHomeOverview,
   getRecordById,
-  getQuickInsights,
-  getTimelineItems,
   updateRecord
 } = require("../../utils/store");
 
@@ -28,10 +26,10 @@ const buildPatch = (field, value) => {
 
 Page({
   data: {
-    quickActions,
-    heroTitle: "",
-    heroSubtitle: "",
-    dashboardCards: [],
+    babyName: "",
+    ageText: "",
+    infoText: "",
+    quickActionCards: quickActions,
     timeline: [],
     hasTimeline: false,
     showComposer: false,
@@ -70,19 +68,21 @@ Page({
     outingTypeIndex: 0
   },
   onShow() {
-    waitForInitialStore().then(() => {
-      this.refresh();
+    ensureReadyOrRedirect().then((result) => {
+      if (result && result.ready) {
+        this.refresh();
+      }
     });
   },
   refresh() {
-    const insight = getQuickInsights();
-    const timeline = getTimelineItems();
+    const overview = getHomeOverview();
     this.setData({
-      heroTitle: insight.heroTitle,
-      heroSubtitle: insight.heroSubtitle,
-      dashboardCards: getDashboardCards(),
-      timeline,
-      hasTimeline: timeline.length > 0
+      babyName: overview.babyName,
+      ageText: overview.ageText,
+      infoText: overview.infoText,
+      quickActionCards: overview.quickActionCards,
+      timeline: overview.timeline,
+      hasTimeline: overview.timeline.length > 0
     });
   },
   updateComposerState(type) {

@@ -1,5 +1,5 @@
 const { today } = require("../../utils/date");
-const { waitForInitialStore } = require("../../utils/page");
+const { ensureReadyOrRedirect } = require("../../utils/page");
 const {
   createMilestoneWithMedia,
   deleteMilestoneById,
@@ -27,8 +27,10 @@ Page({
     uploadingMedia: false
   },
   onShow() {
-    waitForInitialStore().then(() => {
-      this.refresh();
+    ensureReadyOrRedirect().then((result) => {
+      if (result && result.ready) {
+        this.refresh();
+      }
     });
   },
   refresh() {

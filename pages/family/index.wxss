@@ -1,0 +1,54 @@
+.section-card {
+  padding: 28rpx;
+  margin-top: 22rpx;
+}
+
+.invite-box {
+  margin-top: 20rpx;
+  padding: 24rpx;
+  border-radius: 22rpx;
+  background: #fff6ed;
+}
+
+.invite-code {
+  font-size: 34rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #8c553b;
+}
+
+.action-button {
+  margin-top: 18rpx;
+}
+
+.member-list {
+  margin-top: 18rpx;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0e3d5;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.member-name {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.member-role {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8d7866;
+}
+
+.owner-pill {
+  background: #f0ddc7;
+  color: #8f583c;
+}

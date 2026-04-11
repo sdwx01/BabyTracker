@@ -40,7 +40,26 @@
   min-width: 170rpx;
 }
 
+.edit-button {
+  min-width: 130rpx;
+  font-size: 24rpx;
+}
+
 .sheet-close {
   font-size: 26rpx;
   color: #8a7564;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 22rpx;
+}
+
+.toggle-text {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8e7b69;
 }

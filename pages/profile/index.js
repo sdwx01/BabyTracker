@@ -1,158 +1,176 @@
 const {
   bootstrapCloudStore,
   getBaby,
-  getCaregivers,
   getDataSourceStatus,
   getInviteCode,
-  getMemberSummaries,
   joinFamilyByInviteCode,
-  refreshStoreFromCloud,
   setCloudPreference,
-  syncStoreToCloud,
-  updateMemberProfile,
   updateBaby
 } = require("../../utils/store");
-const { waitForInitialStore } = require("../../utils/page");
+const { ensureReadyOrRedirect } = require("../../utils/page");
 
 Page({
   data: {
     baby: {},
-    caregivers: [],
-    hasCaregivers: false,
-    inviteCode: "",
-    hasInviteCode: false,
-    inviteCodeText: "初始化云端后会生成真实邀请码",
-    genderLabel: "",
+    hasBaby: false,
+    avatarText: "宝",
+    profileTitle: "还没添加宝宝",
+    profileMeta: "完成宝宝资料后，就可以开始记录喂奶、睡眠和第一次。",
+    nicknameText: "未设置",
+    birthDateText: "未设置",
+    genderText: "未设置",
     dataSource: {},
-    primaryRoleOptions: ["爸爸", "妈妈", "爷爷", "奶奶", "外婆"],
-    extendedRoleOptions: ["外公", "保姆", "月嫂", "阿姨", "其他"]
+    inviteCodeText: "开启云端同步后会自动生成邀请码",
+    hasInviteCode: false,
+    showBabyEditor: false,
+    editorNickname: "",
+    editorBirthDate: "",
+    editorGenderIndex: 0,
+    editorBirthDateText: "请选择出生日期",
+    editorGenderText: "女宝宝",
+    genderOptions: ["女宝宝", "男宝宝"]
   },
   onShow() {
-    waitForInitialStore().then(() => {
-      this.refresh();
+    ensureReadyOrRedirect().then((result) => {
+      if (result && result.ready) {
+        this.refresh();
+      }
     });
   },
   refresh() {
     const baby = getBaby();
-    const memberSummaries = getMemberSummaries();
-    const fallbackCaregivers = getCaregivers();
-    const caregivers = memberSummaries.length ? memberSummaries : fallbackCaregivers;
+    const genderMap = {
+      girl: "女宝宝",
+      boy: "男宝宝"
+    };
+    const inviteCode = getInviteCode();
+
     this.setData({
       baby,
-      caregivers,
-      hasCaregivers: caregivers.length > 0,
-      inviteCode: getInviteCode(),
-      hasInviteCode: !!getInviteCode(),
-      inviteCodeText: getInviteCode() || "初始化云端后会生成真实邀请码",
-      genderLabel: baby.gender === "girl" ? "女宝宝" : "宝宝",
-      dataSource: getDataSourceStatus()
+      hasBaby: !!baby.nickname,
+      avatarText: baby.avatarText || "宝",
+      profileTitle: baby.nickname || "还没添加宝宝",
+      profileMeta: baby.nickname ? `出生于 ${baby.birthDate} · ${genderMap[baby.gender] || "宝宝"}` : "完成宝宝资料后，就可以开始记录喂奶、睡眠和第一次。",
+      nicknameText: baby.nickname || "未设置",
+      birthDateText: baby.birthDate || "未设置",
+      genderText: genderMap[baby.gender] || "未设置",
+      dataSource: getDataSourceStatus(),
+      inviteCodeText: inviteCode || "开启云端同步后会自动生成邀请码",
+      hasInviteCode: !!inviteCode
     });
   },
   onCloudPreferenceChange(event) {
-    setCloudPreference(event.detail.value);
+    const enabled = !!event.detail.value;
+    setCloudPreference(enabled);
+
+    if (!enabled) {
+      this.refresh();
+      wx.showToast({
+        title: "已切换为本地保存",
+        icon: "none"
+      });
+      return;
+    }
+
+    wx.showLoading({
+      title: "连接中"
+    });
+    bootstrapCloudStore().then(() => {
+      wx.hideLoading();
+      this.refresh();
+      wx.showToast({
+        title: "已开启云端同步",
+        icon: "success"
+      });
+    });
+  },
+  editBaby() {
+    this.setData({
+      showBabyEditor: true,
+      editorNickname: this.data.baby.nickname || "",
+      editorBirthDate: this.data.baby.birthDate || "",
+      editorGenderIndex: this.data.baby.gender === "boy" ? 1 : 0,
+      editorBirthDateText: this.data.baby.birthDate || "请选择出生日期",
+      editorGenderText: this.data.baby.gender === "boy" ? "男宝宝" : "女宝宝"
+    });
+  },
+  closeBabyEditor() {
+    this.setData({
+      showBabyEditor: false
+    });
+  },
+  onEditorInputChange(event) {
+    const patch = {};
+    patch[event.currentTarget.dataset.field] = event.detail.value;
+    this.setData(patch);
+  },
+  onEditorBirthDateChange(event) {
+    this.setData({
+      editorBirthDate: event.detail.value,
+      editorBirthDateText: event.detail.value
+    });
+  },
+  onEditorGenderChange(event) {
+    const editorGenderIndex = Number(event.detail.value);
+    this.setData({
+      editorGenderIndex,
+      editorGenderText: this.data.genderOptions[editorGenderIndex]
+    });
+  },
+  submitBabyEditor() {
+    const nickname = (this.data.editorNickname || "").trim();
+    const birthDate = (this.data.editorBirthDate || "").trim();
+
+    if (!nickname) {
+      wx.showToast({
+        title: "请输入宝宝昵称",
+        icon: "none"
+      });
+      return;
+    }
+
+    if (!birthDate) {
+      wx.showToast({
+        title: "请选择出生日期",
+        icon: "none"
+      });
+      return;
+    }
+
+    updateBaby({
+      nickname,
+      birthDate,
+      gender: this.data.editorGenderIndex === 0 ? "girl" : "boy",
+      avatarText: nickname.slice(0, 1)
+    });
+    this.closeBabyEditor();
     this.refresh();
-  },
-  pullFromCloud() {
-    wx.showLoading({
-      title: "拉取中"
+    wx.showToast({
+      title: "已保存",
+      icon: "success"
     });
-    refreshStoreFromCloud().then((result) => {
-      wx.hideLoading();
-      this.refresh();
+  },
+  copyInviteCode() {
+    if (!this.data.hasInviteCode) {
       wx.showToast({
-        title: result && result.ok ? "已拉取" : "使用本地数据",
-        icon: result && result.ok ? "success" : "none"
+        title: "还没有可用邀请码",
+        icon: "none"
       });
-    });
-  },
-  pushToCloud() {
-    wx.showLoading({
-      title: "上传中"
-    });
-    syncStoreToCloud().then((result) => {
-      wx.hideLoading();
-      this.refresh();
-      wx.showToast({
-        title: result && result.ok ? "已上传" : "云同步失败",
-        icon: result && result.ok ? "success" : "none"
-      });
-    });
-  },
-  bootstrapCloud() {
-    wx.showLoading({
-      title: "初始化中"
-    });
-    bootstrapCloudStore().then((result) => {
-      wx.hideLoading();
-      this.refresh();
-      wx.showToast({
-        title: result && result.ok ? "云端已就绪" : "仍使用本地",
-        icon: result && result.ok ? "success" : "none"
-      });
-    });
-  },
-  promptCustomRole(callback) {
-    wx.showModal({
-      title: "自定义称呼",
-      editable: true,
-      placeholderText: "如 月嫂 / 阿姨 / 姑姑",
-      success: (customResult) => {
-        const customRole = customResult.content && customResult.content.trim();
-        if (customResult.confirm && customRole) {
-          callback(customRole);
-        }
-      }
-    });
-  },
-  showExtendedRoleSheet(callback) {
-    wx.showActionSheet({
-      itemList: this.data.extendedRoleOptions,
-      success: (result) => {
-        const role = this.data.extendedRoleOptions[result.tapIndex];
-        if (role === "其他") {
-          this.promptCustomRole(callback);
-          return;
-        }
-        callback(role);
-      },
-      fail: () => {
-        this.promptCustomRole(callback);
-      }
-    });
-  },
-  chooseRole(callback) {
-    const itemList = this.data.primaryRoleOptions.concat(["更多身份"]);
-    wx.showActionSheet({
-      itemList,
-      success: (result) => {
-        const role = itemList[result.tapIndex];
-        if (role === "更多身份") {
-          this.showExtendedRoleSheet(callback);
-          return;
-        }
-        callback(role);
-      },
-      fail: () => {
-        this.promptCustomRole(callback);
-      }
-    });
-  },
-  updateMyRole() {
-    this.chooseRole((role) => {
-      wx.showLoading({
-        title: "保存中"
-      });
-      updateMemberProfile(role, role).then((result) => {
-        wx.hideLoading();
-        this.refresh();
-        wx.showToast({
-          title: result && result.ok ? "已更新身份" : ((result && result.message) || "更新失败"),
-          icon: result && result.ok ? "success" : "none"
-        });
-      });
+      return;
+    }
+    wx.setClipboardData({
+      data: this.data.inviteCodeText
     });
   },
   joinFamily() {
+    if (!this.data.dataSource.canUseCloud) {
+      wx.showToast({
+        title: "请先开启云端同步",
+        icon: "none"
+      });
+      return;
+    }
+
     wx.showModal({
       title: "输入邀请码",
       editable: true,
@@ -163,36 +181,17 @@ Page({
           return;
         }
 
-        this.chooseRole((role) => {
-              wx.showLoading({
-                title: "加入中"
-              });
-              joinFamilyByInviteCode(inviteCode, role, role).then((result) => {
-                wx.hideLoading();
-                this.refresh();
-                wx.showToast({
-                  title: result && result.ok ? "已加入家庭" : ((result && result.message) || "加入失败"),
-                  icon: result && result.ok ? "success" : "none"
-                });
-              });
+        wx.showLoading({
+          title: "加入中"
         });
-      }
-    });
-  },
-  editNickname() {
-    wx.showModal({
-      title: "修改宝宝昵称",
-      editable: true,
-      placeholderText: "请输入昵称",
-      success: (result) => {
-        const value = result.content && result.content.trim();
-        if (result.confirm && value) {
-          updateBaby({
-            nickname: value,
-            avatarText: value.slice(0, 1)
-          });
+        joinFamilyByInviteCode(inviteCode, "家庭成员", "家庭成员").then((result) => {
+          wx.hideLoading();
           this.refresh();
-        }
+          wx.showToast({
+            title: result && result.ok ? "已加入家庭" : ((result && result.message) || "加入失败"),
+            icon: result && result.ok ? "success" : "none"
+          });
+        });
       }
     });
   }

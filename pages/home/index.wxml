@@ -1,42 +1,30 @@
 <view class="page-shell">
   <view class="hero-card hero">
-    <view class="pill">两步记录</view>
-    <view class="hero-title">{{heroTitle}}</view>
-    <view class="hero-subtitle">{{heroSubtitle}}</view>
-  </view>
-
-  <view class="surface-card summary-card">
-    <view class="section-row">
-      <view>
-        <view class="section-title">今日概览</view>
-        <view class="section-subtitle">把高频信息压缩到一眼能看懂</view>
-      </view>
+    <view class="hero-main-row">
+      <view class="hero-name">{{babyName}}</view>
+      <view class="hero-age">{{ageText}}</view>
     </view>
-    <view class="summary-grid">
-      <view class="summary-item" wx:for="{{dashboardCards}}" wx:key="label">
-        <view class="summary-label">{{item.label}}</view>
-        <view class="summary-value">{{item.value}}</view>
-      </view>
-    </view>
+    <view class="hero-subtitle">{{infoText}}</view>
   </view>
 
   <view class="section-row plain-row">
     <view>
       <view class="section-title">快捷记录</view>
-      <view class="section-subtitle">单手操作，大按钮优先</view>
+      <view class="section-subtitle">点一下就开始，也能立刻看到上一次是什么时候</view>
     </view>
   </view>
   <view class="action-grid">
-    <view class="action-card" wx:for="{{quickActions}}" wx:key="type" bindtap="openComposer" data-type="{{item.type}}">
+    <view class="action-card" wx:for="{{quickActionCards}}" wx:key="type" bindtap="openComposer" data-type="{{item.type}}">
       <view class="action-title">{{item.title}}</view>
-      <view class="action-subtitle">{{item.subtitle}}</view>
+      <view class="action-meta">{{item.metaText}}</view>
+      <view class="action-subtitle">{{item.summaryText}}</view>
     </view>
   </view>
 
   <view class="section-row plain-row">
     <view>
-      <view class="section-title">今天时间轴</view>
-      <view class="section-subtitle">记录完成后立刻出现在这里</view>
+      <view class="section-title">最近记录</view>
+      <view class="section-subtitle">编辑、复制和删除都在这里完成</view>
     </view>
   </view>
 
@@ -58,7 +46,7 @@
     </view>
   </view>
   <view wx:else class="surface-card empty-state">
-    今天还没有记录，先点上面的快捷按钮。
+    还没有记录，先从上面的快捷记录开始。
   </view>
 </view>
 

@@ -1,0 +1,44 @@
+<view class="page-shell onboarding-shell">
+  <view class="hero-card onboarding-hero">
+    <view class="hero-eyebrow">宝宝喂养记录</view>
+    <view class="hero-title">{{titleText}}</view>
+    <view class="hero-subtitle">{{subtitleText}}</view>
+  </view>
+
+  <view wx:if="{{isLanding}}" class="landing-stack">
+    <button class="primary-button landing-button" bindtap="startCreateFlow">添加宝宝开始记录</button>
+    <button class="secondary-button landing-button" bindtap="startJoinFlow">通过邀请码加入家庭</button>
+  </view>
+
+  <view wx:if="{{isCreateMode}}" class="surface-card form-card">
+    <view class="section-title">宝宝资料</view>
+    <view class="form-group">
+      <view class="field-label">宝宝昵称</view>
+      <input class="field-input" placeholder="如 糯米 / 小满" value="{{babyNickname}}" data-field="babyNickname" bindinput="onInputChange" />
+    </view>
+    <view class="form-group">
+      <view class="field-label">出生日期</view>
+      <picker mode="date" value="{{birthDate}}" bindchange="onBirthDateChange">
+        <view class="field-picker">{{birthDate}}</view>
+      </picker>
+    </view>
+    <view class="form-group">
+      <view class="field-label">性别</view>
+      <picker mode="selector" range="{{genderOptions}}" value="{{genderIndex}}" bindchange="onGenderChange">
+        <view class="field-picker">{{genderText}}</view>
+      </picker>
+    </view>
+    <button class="primary-button submit-button" bindtap="submitCreate">开始记录</button>
+    <button class="ghost-button" bindtap="goBack">返回</button>
+  </view>
+
+  <view wx:if="{{isJoinMode}}" class="surface-card form-card">
+    <view class="section-title">加入家庭</view>
+    <view class="form-group">
+      <view class="field-label">邀请码</view>
+      <input class="field-input" placeholder="如 BABY-AB12CD" value="{{inviteCode}}" data-field="inviteCode" bindinput="onInputChange" />
+    </view>
+    <button class="primary-button submit-button" bindtap="submitJoin">加入并开始同步</button>
+    <button class="ghost-button" bindtap="goBack">返回</button>
+  </view>
+</view>

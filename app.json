@@ -1,9 +1,9 @@
 {
   "pages": [
+    "pages/onboarding/index",
     "pages/home/index",
     "pages/stats/index",
     "pages/milestones/index",
-    "pages/reminders/index",
     "pages/profile/index"
   ],
   "window": {
@@ -34,10 +34,6 @@
       {
         "pagePath": "pages/milestones/index",
         "text": "第一次"
-      },
-      {
-        "pagePath": "pages/reminders/index",
-        "text": "提醒"
       },
       {
         "pagePath": "pages/profile/index",

@@ -26,10 +26,7 @@
   margin-top: 12rpx;
   font-size: 25rpx;
   color: #8f7968;
-}
-
-.edit-button {
-  margin-top: 20rpx;
+  line-height: 1.6;
 }
 
 .section-card {
@@ -42,7 +39,6 @@
   justify-content: space-between;
   gap: 18rpx;
   margin-top: 22rpx;
-  padding: 18rpx 0;
 }
 
 .sync-label {
@@ -58,6 +54,7 @@
 }
 
 .sync-hint {
+  margin-top: 18rpx;
   padding: 18rpx 20rpx;
   border-radius: 20rpx;
   background: #fff6ed;
@@ -74,52 +71,6 @@
   font-size: 24rpx;
   line-height: 1.5;
   color: #b55d43;
-}
-
-.sync-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-top: 18rpx;
-}
-
-.sync-button {
-  width: 32%;
-  font-size: 24rpx;
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.caregiver-list {
-  margin-top: 20rpx;
-}
-
-.caregiver-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #f0e3d5;
-}
-
-.caregiver-item:last-child {
-  border-bottom: none;
-}
-
-.caregiver-name {
-  font-size: 28rpx;
-  font-weight: 700;
-}
-
-.caregiver-role {
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  color: #8d7866;
-}
-
-.owner-pill {
-  background: #f0ddc7;
-  color: #8f583c;
 }
 
 .invite-box {
@@ -142,20 +93,25 @@
 }
 
 .family-button {
-  margin-top: 18rpx;
+  margin-top: 22rpx;
 }
 
-.guideline-list {
-  margin-top: 16rpx;
+.sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20rpx;
 }
 
-.guideline-item {
-  padding: 16rpx 0;
+.sheet-close {
   font-size: 26rpx;
-  color: #564438;
-  border-bottom: 1rpx solid #f0e3d5;
+  color: #8d7866;
 }
 
-.guideline-item:last-child {
-  border-bottom: none;
+.editor-group {
+  margin-top: 22rpx;
+}
+
+.save-button {
+  margin-top: 28rpx;
 }
